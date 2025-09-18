@@ -10,7 +10,7 @@ export class helpyunzai extends plugin {
       name: 'helpyunzai',
       dsc: 'Yunzai插件帮助菜单（图片版）',
       event: 'message',
-      priority: 1000,
+      priority: -999999999999,
       rule: [
         {
           reg: /^(\/|#)?(帮助|命令|菜单|help|功能|指令)$/i,
@@ -27,14 +27,42 @@ export class helpyunzai extends plugin {
       const filePath = path.resolve('./plugins/YunKit-plugin/data/avatar.' + ext)
       fs.writeFileSync(filePath, res.data)
       return filePath
-    } catch (err) {
-     // logger.warn('头像下载失败，将显示空白', err)
+    } catch {
       return ''
     }
   }
 
   rgbToHex(rgb) {
     return '#' + rgb.map(x => x.toString(16).padStart(2, '0')).join('')
+  }
+
+  /** 获取版本信息 */
+  getVersionInfo() {
+    let yunzai_name = ''
+    let yunzai_ver = ''
+    let ver = ''
+
+    try {
+      // 读取 package.json
+      const pkgPath = path.resolve('./package.json')
+      if (fs.existsSync(pkgPath)) {
+        const packageJson = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
+        yunzai_name = packageJson.name || yunzai_name
+        yunzai_ver = packageJson.version || yunzai_ver
+      }
+
+      // 读取 CHANGELOG.md 只取最新一行版本号
+      const logPath = path.resolve('./plugins/YunKit-plugin/CHANGELOG.md')
+      if (fs.existsSync(logPath)) {
+        const logContent = fs.readFileSync(logPath, 'utf-8')
+        const match = logContent.match(/^#+\s*\[?v?([\d.]+)\]?/m)
+        if (match) ver = match[1]
+      }
+    } catch (err) {
+      logger.warn('[helpyunzai] 读取版本信息失败', err)
+    }
+
+    return { yunzai_name, yunzai_ver, ver }
   }
 
   async showHelp(e) {
@@ -65,9 +93,7 @@ export class helpyunzai extends plugin {
         try {
           const rgb = await ColorThief.getColor(avatarPath)
           mainColor = this.rgbToHex(rgb)
-        } catch (err) {
-          //logger.warn('[helpyunzai] 提取头像主色失败，使用默认颜色', err)
-        }
+        } catch {}
       }
 
       const titleText = e.isMaster
@@ -76,13 +102,19 @@ export class helpyunzai extends plugin {
 
       const filteredSections = (data.sections || []).filter(sec => !sec.isAdmin || e.isMaster)
 
+      // === 获取版本信息 ===
+      const { yunzai_name, yunzai_ver, ver } = this.getVersionInfo()
+
       const commandsData = {
         ...data,
         title: titleText,
         avatar: avatarBase64,
         isMaster: e.isMaster,
         sections: filteredSections,
-        mainColor
+        mainColor,
+        yunzai_name,
+        yunzai_ver,
+        ver
       }
 
       htmlContent = htmlContent.replace(
@@ -101,7 +133,6 @@ export class helpyunzai extends plugin {
       await page.setViewport({ width: 600, height: 900 })
       await page.setContent(htmlContent, { waitUntil: 'domcontentloaded', timeout: 0 })
 
-      // 等待命令渲染完成
       await page.waitForFunction(() => {
         const grids = document.querySelectorAll('.command-grid')
         return grids.length > 0 && Array.from(grids).every(g => g.children.length > 0)

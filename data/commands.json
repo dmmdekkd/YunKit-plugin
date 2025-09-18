@@ -4,11 +4,7 @@
     "master": "BotDashboard",
     "normal": "BotHelp"
   },
-  "version": {
-    "appVersion": "v1.0.0",
-    "clientVersion": "v3.0.0",
-    "resVersion": "v1.0.0"
-  },
+
   "isMaster": true,
   "sections": [
     {
@@ -37,8 +33,8 @@
       "title": "管理员服务",
       "isAdmin": true,
       "commands": [
-        { "command": "公告 添加 [内容]", "description": "发布公告，仅管理员可用，支持多行文本" },
-        { "command": "公告 删除 [编号]", "description": "删除指定编号的公告" },
+        { "command": "YK[强制]更新", "description": "更新啦" },
+        { "command": "YK信息", "description": "获取更新信息" },
         { "command": "数据清理", "description": "清理所有用户的绑定数据" },
         { "command": "权限设置 [UID] [权限]", "description": "修改指定用户的管理员权限" }
       ]

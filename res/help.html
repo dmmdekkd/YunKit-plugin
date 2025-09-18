@@ -69,8 +69,14 @@ body {
 
 .top .version {
   font-size: 14px;
-  color: #f0f0f0; /* 浅灰色，更醒目 */
+  color: #f0f0f0; /* 浅灰色 */
   margin-top: 4px;
+}
+
+.top .sub-version {
+  font-size: 12px;
+  color: #9E9A9A;
+  margin-top: 2px;
 }
 
 #sectionsContainer {
@@ -111,7 +117,7 @@ body {
 }
 
 .command-btn span.command {
-  color: #fff; /* 更醒目的浅灰色 */
+  color: #fff;
   font-weight: 600;
   margin-bottom: 4px;
 }
@@ -135,6 +141,7 @@ body {
   <div>
     <div class="title" id="title"></div>
     <div class="version" id="version"></div>
+    <div class="sub-version" id="subVersion"></div>
   </div>
 </div>
 
@@ -145,7 +152,7 @@ function renderCommands() {
   if (!window.commandsData) return;
   const data = window.commandsData;
 
-  // 设置主色 CSS 变量
+  // 设置主色
   document.documentElement.style.setProperty('--main-color', data.mainColor || '#ffdd57');
 
   // 顶部头像
@@ -156,24 +163,20 @@ function renderCommands() {
   const bg = document.getElementById('bgBlur');
   bg.style.backgroundImage = `url(${data.avatar || ''})`;
 
-  // 顶部标题
+  // 标题
   document.getElementById('title').textContent = data.title || '帮助菜单';
 
-  // 版本信息
-  const v = data.version || {};
-  document.getElementById('version').textContent =
-    `版本: ${v.appVersion||''} | TRSS: ${v.clientVersion||''} | Res: ${v.resVersion||''}`;
+  // 版本信息：主版本
+  const verUpdate = data.ver ? ` 版本: v${data.ver}` : '';
+  const verMain = ` | ${data.yunzai_name || 'Yunzai'}: v${data.yunzai_ver || ''}`;
+  document.getElementById('version').textContent = verUpdate + verMain ;
 
-  // 随机顶部布局：居中或靠左
+
+  // 顶部布局随机
   const topDiv = document.querySelector('.top');
-  topDiv.className = 'top'; // 清除旧 class
-  if (Math.random() < 0.5) {
-    topDiv.classList.add('top-center');
-  } else {
-    topDiv.classList.add('top-left');
-  }
-
-  // 随机 marginTop
+  topDiv.className = 'top';
+  if (Math.random() < 0.5) topDiv.classList.add('top-center');
+  else topDiv.classList.add('top-left');
   topDiv.style.marginTop = `${30 + Math.floor(Math.random() * 30)}px`;
 
   // 渲染 sections
@@ -204,8 +207,6 @@ function renderCommands() {
     container.appendChild(sectionDiv);
   });
 }
-
-// 确保 Puppeteer 渲染时可以调用
 document.addEventListener('DOMContentLoaded', renderCommands);
 </script>
 </body>

@@ -47,10 +47,9 @@ export class CryoUpdatePlugin extends plugin {
 
       if (updater.isUp) {
         setTimeout(() => updater.restart(), 2000);
-      } else {
       }
     } catch (err) {
-      logger.error('[YunKit更新] 更新失败', err);
+      logger.error('更新失败', err);
     }
   }
 
@@ -65,13 +64,11 @@ export class CryoUpdatePlugin extends plugin {
       
       // 渲染 HTML 模板
       const html = await this.renderHTML(avatarBase64, mainColor, title, topLayout);
-      
 
       // Puppeteer 渲染
       const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
       const page = await browser.newPage();
-                  // 固定 viewport 避免截图黑掉
-      await page.setViewport({ width: 600, height: 900 });;
+      await page.setViewport({ width: 600, height: 900 }); // 固定 viewport 避免截图黑掉
       await page.setContent(html, { waitUntil: 'networkidle0' });
       const buffer = await page.screenshot({ fullPage: true });
       await browser.close();
@@ -79,7 +76,7 @@ export class CryoUpdatePlugin extends plugin {
       const base64Img = 'base64://' + buffer.toString('base64');
       await this.e.reply(segment.image(base64Img));
     } catch (err) {
-      logger.error('[YunKit信息] 渲染失败', err);
+      logger.error('渲染失败', err);
       await this.e.reply('失败');
     }
   }
@@ -90,13 +87,14 @@ export class CryoUpdatePlugin extends plugin {
     try {
       template = fs.readFileSync(this.TEMPLATE_PATH, 'utf8');
     } catch (err) {
-      logger.error('[YunKit信息] HTML 模板读取失败', err);
+      logger.error('HTML 模板读取失败', err);
       template = `
         <html><body>
         <h1>{{title}}</h1>
         <h2>YunKit 插件信息</h2>
         <p>当前版本: {{ver}}</p>
         <p>Yunzai 版本: {{yunzai}}</p>
+        <p>Yunzai 名称: {{yunzainame}}</p>
         <h3>CHANGELOG:</h3>
         {{changelog}}
         <h3>COMMITS:</h3>
@@ -105,7 +103,8 @@ export class CryoUpdatePlugin extends plugin {
       `;
     }
 
-    const { ver, yunzai, logs } = this.Version;
+    // ✅ 修复：加上 yunzainame
+    const { ver, yunzai, yunzainame, logs } = this.Version;
 
     // 解析 CHANGELOG.md
     let changelogHTML = '';
@@ -130,7 +129,7 @@ export class CryoUpdatePlugin extends plugin {
       const stdout = execSync('git log --pretty=format:"[%ad] %s" --date=short -n 10', { cwd: this.Plugin_Path });
       gitLogs = stdout.toString().split('\n');
     } catch (e) {
-      logger.error('[YunKit信息] 获取 git 提交失败', e);
+      logger.error('获取 git 提交失败', e);
     }
     let gitLogsHTML = '';
     if (gitLogs.length > 0) {
@@ -146,6 +145,7 @@ export class CryoUpdatePlugin extends plugin {
                        .replace(/{{mainColor}}/g, mainColor)
                        .replace(/{{ver}}/g, ver || '未知')
                        .replace(/{{yunzai}}/g, yunzai || '未知')
+                       .replace(/{{yunzainame}}/g, yunzainame || '未知')
                        .replace(/{{changelog}}/g, changelogHTML)
                        .replace(/{{gitlogs}}/g, gitLogsHTML)
                        .replace(/{{title}}/g, title)
@@ -156,6 +156,7 @@ export class CryoUpdatePlugin extends plugin {
 
   /** 获取版本信息 */
   getVersionInfo() {
+    let yunzai_name = '';
     let yunzai_ver = '';
     let changelogs = [];
     let currentVersion;
@@ -164,6 +165,7 @@ export class CryoUpdatePlugin extends plugin {
     try {
       const packageJson = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'package.json'), 'utf8'));
       yunzai_ver = packageJson.version;
+      yunzai_name = packageJson.name; // ✅ 修复拼写
     } catch {}
 
     const getLine = line => line.replace(/(^\s*[\*\-]|\r)/g, '').trim();
@@ -211,6 +213,7 @@ export class CryoUpdatePlugin extends plugin {
 
     return {
       get ver() { return currentVersion; },
+      get yunzainame() { return yunzai_name; },  
       get yunzai() { return yunzai_ver; },
       get logs() { return changelogs; }
     };
