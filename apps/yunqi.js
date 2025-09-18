@@ -1,51 +1,85 @@
 import axios from "axios";
+import fs from "fs";
+import path from "path";
 
 export class YuanQiWhiteListPlugin extends plugin {
   constructor() {
     super({
-      name: "YuanQi白名单群聊",
-      dsc: "只允许白名单群使用的AI聊天插件（纯文字）",
+      name: "YuanQi",
+      dsc: "AI 白名单群内用户聊天，支持概率回复",
       event: "message",
-      priority: 1000,
+      priority: 999999999,
       rule: [
         {
-          reg: "^(#|/)ai( |$)(.*)?",
+          reg: ".*",
           fnc: "chat",
+          log: true,
         },
       ],
     });
 
-    // 白名单群号
-    this.whitelistGroups = ["1057604000", "1234567890"];
+    // JSON 配置路径
+    this.configPath = path.resolve(
+      process.cwd(),
+      "./plugins/YunKit-plugin/data/yuankqi.json"
+    );
 
-    // YuanQi 配置
-    this.assistant_id = "1968311988766836608";
-    this.assistant_token = "nffPuLBSAaVLIFn3iskkQ1OUWzzTvsP4";
+    // 默认配置
+    this.config = {
+      whitelistGroupUsers: {},
+      assistant_id: "",
+      assistant_token: "",
+      replyProbability: 0.75, // 默认 75% 概率回复
+    };
+
+    // 尝试读取配置文件
+    this.loadConfig();
+  }
+
+  loadConfig() {
+    try {
+      if (fs.existsSync(this.configPath)) {
+        const raw = fs.readFileSync(this.configPath, "utf-8");
+        const json = JSON.parse(raw);
+
+        this.config.whitelistGroupUsers = json.whitelistGroupUsers || {};
+        this.config.assistant_id = json.assistant_id || "";
+        this.config.assistant_token = json.assistant_token || "";
+        this.config.replyProbability =
+          typeof json.replyProbability === "number"
+            ? json.replyProbability
+            : this.config.replyProbability;
+      } else {
+        console.warn("[YuanQi插件] 配置文件不存在，将使用默认空配置。");
+      }
+    } catch (err) {
+      console.error("[YuanQi插件] 读取配置文件失败:", err);
+    }
   }
 
   async chat(e) {
+    const userId = e.user_id?.toString();
     const groupId = e.group_id?.toString();
-    if (!groupId || !this.whitelistGroups.includes(groupId)) {
-      await e.reply("本群不在白名单中，无法使用AI聊天功能。");
-      return true;
+
+    const allowedUsers = this.config.whitelistGroupUsers[groupId];
+    if (!allowedUsers) return false; // 非指定群不处理
+
+    if (!allowedUsers.includes(userId)) {
+      return true; // 群内非白名单用户不处理
     }
 
-    // 提取用户消息
-    const userMsg = e.msg.replace(/^(#|\/)ai\s*/i, "").trim();
-    if (!userMsg) {
-      await e.reply("请发送要提问的内容，例如：#ai 今天天气如何？");
-      return true;
-    }
-
-    await e.reply("正在处理，请稍候...");
+    // 根据配置概率决定是否回复
+    if (Math.random() > this.config.replyProbability) return true;
 
     try {
-      const responseText = await this.callYuanQiAPI(userMsg, e.user_id.toString());
+      const userMsg = e.raw_message?.trim();
+      if (!userMsg) return true;
+
+      const responseText = await this.callYuanQiAPI(userMsg, userId);
       if (!responseText) {
         await e.reply("AI未返回有效内容，请稍后再试。");
         return true;
       }
-
       await e.reply(responseText);
     } catch (err) {
       console.error("YuanQi API 调用失败：", err);
@@ -58,7 +92,7 @@ export class YuanQiWhiteListPlugin extends plugin {
   async callYuanQiAPI(content, userId) {
     try {
       const body = {
-        assistant_id: this.assistant_id,
+        assistant_id: this.config.assistant_id,
         user_id: userId,
         stream: false,
         messages: [
@@ -76,7 +110,7 @@ export class YuanQiWhiteListPlugin extends plugin {
           headers: {
             "X-Source": "openapi",
             "Content-Type": "application/json",
-            Authorization: "Bearer " + this.assistant_token,
+            Authorization: "Bearer " + this.config.assistant_token,
           },
           timeout: 15000,
         }

@@ -10,7 +10,7 @@ export class helpyunzai extends plugin {
       name: 'helpyunzai',
       dsc: 'Yunzai插件帮助菜单（图片版）',
       event: 'message',
-      priority: -999999999999,
+      priority: -99,
       rule: [
         {
           reg: /^(\/|#)?(帮助|命令|菜单|help|功能|指令)$/i,
