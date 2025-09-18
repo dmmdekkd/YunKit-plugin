@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>插件信息</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap');
+
+:root {
+  --main-color: #ffdd57; /* 默认主色，会被脚本替换 */
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  margin: 0;
+  padding: 20px 0;
+  width: 600px;
+  min-height: 900px;
+  background: #121212;
+  color: #fff;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* 背景虚化 */
+#bgBlur {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(25px) brightness(0.5);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* 顶部区域 */
+.top {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.top-left {
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 12px;
+  padding-left: 20px;
+}
+
+.top-center {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.top img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--main-color);
+}
+
+.top .title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--main-color);
+  margin-bottom: 6px;
+}
+
+.top .version {
+  font-size: 14px;
+  color: #f0f0f0;
+}
+
+/* 顶部与功能区域间隔 */
+#contentContainer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+  margin-top: 30px; /* 顶部区域与功能区域间隔 */
+}
+
+/* 左右栏 */
+.left, .right {
+  width: 48%;
+  overflow-wrap: break-word;
+  padding: 15px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+}
+
+/* 栏目标题 */
+.left h3, .right h3 {
+  font-size: 18px;
+  font-weight: 700;
+  border-bottom: 2px solid var(--main-color);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+/* 日志条目 */
+.log-entry, .git-log {
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(255,255,255,0.2);
+}
+
+.log-version {
+  font-weight: bold;
+  color: #1E90FF;
+}
+
+.log-title {
+  margin-left: 10px;
+  color: #fff;
+}
+
+.log-sub {
+  margin-left: 30px;
+  color: #aaa;
+}
+
+.git-log {
+  margin-left: 10px;
+  color: #9E9A9A;
+}
+</style>
+</head>
+<body>
+<!-- 背景虚化 -->
+<div id="bgBlur" style="background-image:url('{{avatar}}');"></div>
+
+<!-- 顶部信息 -->
+<div class="top {{topLayout}}">
+  <img id="avatar" src="{{avatar}}" alt="头像">
+  <div>
+    <div class="title" id="title">{{title}}</div>
+    <div class="version" id="version">版本: {{ver}} | Yunzai: {{yunzai}}</div>
+  </div>
+</div>
+
+<!-- 内容左右布局 -->
+<div id="contentContainer">
+  <div class="left">
+    <h3>CHANGELOG</h3>
+    <div id="changelog">
+      {{changelog}}
+    </div>
+  </div>
+
+  <div class="right">
+    <h3>COMMITS</h3>
+    <div id="gitlogs">
+      {{gitlogs}}
+    </div>
+  </div>
+</div>
+
+<script>
+  // 动态替换主色
+  document.documentElement.style.setProperty('--main-color', '{{mainColor}}');
+</script>
+</body>
+</html>

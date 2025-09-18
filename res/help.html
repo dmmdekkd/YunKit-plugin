@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>帮助菜单</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap');
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  margin: 0;
+  padding: 20px 0;
+  width: 600px;
+  min-height: 900px;
+  background: #121212;
+  color: #fff;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* 背景虚化 */
+#bgBlur {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(25px) brightness(0.5);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* 顶部区域默认居中 */
+.top {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 左侧布局 */
+.top-left {
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 12px;
+  padding-left: 20px;
+}
+
+/* 居中布局 */
+.top-center {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.top img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--main-color, #ffdd57);
+}
+
+.top .title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--main-color, #ffdd57);
+}
+
+.top .version {
+  font-size: 14px;
+  color: #f0f0f0; /* 浅灰色，更醒目 */
+  margin-top: 4px;
+}
+
+#sectionsContainer {
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.section {
+  width: 100%;
+  margin: 20px 0;
+}
+
+.section h2 {
+  font-size: 20px;
+  font-weight: 700;
+  border-bottom: 2px solid var(--main-color, #ffdd57);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+
+.command-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.command-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-left: 4px solid var(--main-color, #ffdd57);
+  border-radius: 6px;
+  min-height: 50px;
+  word-break: break-word;
+}
+
+.command-btn span.command {
+  color: #fff; /* 更醒目的浅灰色 */
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.command-btn span.desc {
+  color: #9E9A9A;
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.command-btn.admin {
+  border-left-color: #ff4d4f;
+}
+</style>
+</head>
+<body>
+<div id="bgBlur"></div>
+
+<div class="top">
+  <img id="avatar" src="" alt="头像">
+  <div>
+    <div class="title" id="title"></div>
+    <div class="version" id="version"></div>
+  </div>
+</div>
+
+<div id="sectionsContainer"></div>
+
+<script>
+function renderCommands() {
+  if (!window.commandsData) return;
+  const data = window.commandsData;
+
+  // 设置主色 CSS 变量
+  document.documentElement.style.setProperty('--main-color', data.mainColor || '#ffdd57');
+
+  // 顶部头像
+  const avatar = document.getElementById('avatar');
+  avatar.src = data.avatar || '';
+
+  // 背景虚化
+  const bg = document.getElementById('bgBlur');
+  bg.style.backgroundImage = `url(${data.avatar || ''})`;
+
+  // 顶部标题
+  document.getElementById('title').textContent = data.title || '帮助菜单';
+
+  // 版本信息
+  const v = data.version || {};
+  document.getElementById('version').textContent =
+    `版本: ${v.appVersion||''} | TRSS: ${v.clientVersion||''} | Res: ${v.resVersion||''}`;
+
+  // 随机顶部布局：居中或靠左
+  const topDiv = document.querySelector('.top');
+  topDiv.className = 'top'; // 清除旧 class
+  if (Math.random() < 0.5) {
+    topDiv.classList.add('top-center');
+  } else {
+    topDiv.classList.add('top-left');
+  }
+
+  // 随机 marginTop
+  topDiv.style.marginTop = `${30 + Math.floor(Math.random() * 30)}px`;
+
+  // 渲染 sections
+  const container = document.getElementById('sectionsContainer');
+  container.innerHTML = '';
+  (data.sections || []).forEach(sec => {
+    if (sec.isAdmin && !data.isMaster) return;
+
+    const sectionDiv = document.createElement('div');
+    sectionDiv.className = 'section';
+    sectionDiv.id = sec.id;
+
+    const titleH2 = document.createElement('h2');
+    titleH2.innerHTML = sec.title + (sec.isAdmin ? ' <span style="font-size:12px;color:#ff4d4f;">仅管理员调用</span>' : '');
+    sectionDiv.appendChild(titleH2);
+
+    const gridDiv = document.createElement('div');
+    gridDiv.className = 'command-grid';
+
+    (sec.commands || []).forEach(cmd => {
+      const btn = document.createElement('div');
+      btn.className = 'command-btn' + (sec.isAdmin ? ' admin' : '');
+      btn.innerHTML = `<span class="command">${cmd.command}</span><span class="desc">${cmd.description}</span>`;
+      gridDiv.appendChild(btn);
+    });
+
+    sectionDiv.appendChild(gridDiv);
+    container.appendChild(sectionDiv);
+  });
+}
+
+// 确保 Puppeteer 渲染时可以调用
+document.addEventListener('DOMContentLoaded', renderCommands);
+</script>
+</body>
+</html>

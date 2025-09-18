@@ -1,0 +1,47 @@
+{
+  "avatar": "",
+  "titles": {
+    "master": "BotDashboard",
+    "normal": "BotHelp"
+  },
+  "version": {
+    "appVersion": "v1.0.0",
+    "clientVersion": "v3.0.0",
+    "resVersion": "v1.0.0"
+  },
+  "isMaster": true,
+  "sections": [
+    {
+      "id": "baseService",
+      "title": "基础服务",
+      "isAdmin": false,
+      "commands": [
+        { "command": "绑定 [UID]", "description": "绑定你的明日方舟账号 UID，绑定后可使用查询功能" },
+        { "command": "解绑", "description": "解除已绑定的 UID，重新绑定请使用绑定命令" },
+        { "command": "查询", "description": "查询当前绑定的 UID 以及账号信息" },
+        { "command": "今日干员", "description": "获取今日可用的干员列表和状态" }
+      ]
+    },
+    {
+      "id": "queryService",
+      "title": "查询服务",
+      "isAdmin": false,
+      "commands": [
+        { "command": "干员信息 [干员名]", "description": "查询指定干员的详细信息、技能与等级" },
+        { "command": "关卡信息 [关卡名]", "description": "查询指定关卡的掉落资源及难度信息" },
+        { "command": "资源查询 [资源名]", "description": "查询资源获取途径，包括掉落关卡和活动奖励" }
+      ]
+    },
+    {
+      "id": "adminService",
+      "title": "管理员服务",
+      "isAdmin": true,
+      "commands": [
+        { "command": "公告 添加 [内容]", "description": "发布公告，仅管理员可用，支持多行文本" },
+        { "command": "公告 删除 [编号]", "description": "删除指定编号的公告" },
+        { "command": "数据清理", "description": "清理所有用户的绑定数据" },
+        { "command": "权限设置 [UID] [权限]", "description": "修改指定用户的管理员权限" }
+      ]
+    }
+  ]
+}
