@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Epic 免费游戏</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap');
+
+:root { --main-color: #ffdd57; }
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  margin: 0;
+  padding: 20px;
+  width: 1000px;
+  min-height: 1000px;
+  background: #121212;
+  color: #fff;
+  box-sizing: border-box;
+  position: relative;
+}
+
+#bgBlur {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(25px) brightness(0.5);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.top img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--main-color);
+  margin-bottom: 10px;
+}
+
+.top .title { font-size: 32px; font-weight: 700; color: var(--main-color); margin-bottom: 4px; }
+.top .version { font-size: 16px; color: #f0f0f0; }
+
+#contentContainer { display: flex; justify-content: space-between; gap: 20px; }
+.left, .right { width: 48%; display: flex; flex-direction: column; gap: 15px; }
+
+.left h3, .right h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--main-color);
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--main-color);
+  padding-bottom: 6px;
+}
+
+.game-card {
+  display: flex;
+  flex-direction: row;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 10px;
+  gap: 10px;
+}
+
+.game-cover {
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid var(--main-color);
+}
+
+.game-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.game-info .title { font-weight: bold; font-size: 16px; color: #fff; }
+.game-info .time { font-size: 12px; color: #aaa; }
+.game-info .price { font-size: 12px; color: #1E90FF; }
+.game-info .description { font-size: 12px; color: #eee; }
+.game-info .categories, .game-info .tags { font-size: 12px; color: #ccc; }
+.game-info a { font-size: 12px; color: var(--main-color); text-decoration: none; }
+.game-info a:hover { text-decoration: underline; }
+
+.additional-images {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.additional-images img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--main-color);
+}
+</style>
+</head>
+<body>
+<div id="bgBlur" style="background-image:url('{{avatar}}');"></div>
+
+<div class="top">
+  <img id="avatar" src="{{avatar}}" alt="头像">
+  <div class="title">{{title}}</div>
+  <div class="version">版本: {{ver}} | {{yunzainame}}: {{yunzai}}</div>
+</div>
+
+<div id="contentContainer">
+  <div class="left">
+    <h3>当前免费游戏</h3>
+    {{#currentGames}}
+    <div class="game-card">
+      <img class="game-cover" src="{{cover}}" alt="{{title}}">
+      <div class="game-info">
+        <div class="title">{{title}}</div>
+        <div class="time">免费时间: {{startDate}} ~ {{endDate}}</div>
+        <div class="price">现价: {{price}} 原价: {{originalPrice}}</div>
+        <div class="description">{{description}}</div>
+        <div class="categories">分类: {{categories}}</div>
+        <div class="tags">标签: {{tags}}</div>
+
+        {{#if additionalImages.length}}
+        <div class="additional-images">
+          {{#each additionalImages}}
+            <img src="{{this}}" alt="{{../title}}">
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    {{/currentGames}}
+  </div>
+
+  <div class="right">
+    <h3>即将免费游戏</h3>
+    {{#upcomingGames}}
+    <div class="game-card">
+      <img class="game-cover" src="{{cover}}" alt="{{title}}">
+      <div class="game-info">
+        <div class="title">{{title}}</div>
+        <div class="time">免费时间: {{startDate}} ~ {{endDate}}</div>
+        <div class="price">现价: {{price}} 原价: {{originalPrice}}</div>
+        <div class="description">{{description}}</div>
+        <div class="categories">分类: {{categories}}</div>
+        <div class="tags">标签: {{tags}}</div>
+        <a href="{{link}}" target="_blank">游戏链接</a>
+
+        {{#if additionalImages.length}}
+        <div class="additional-images">
+          {{#each additionalImages}}
+            <img src="{{this}}" alt="{{../title}}">
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    {{/upcomingGames}}
+  </div>
+</div>
+
+<script>
+document.documentElement.style.setProperty('--main-color', '{{mainColor}}');
+</script>
+</body>
+</html>
