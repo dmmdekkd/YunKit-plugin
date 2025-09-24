@@ -12,7 +12,7 @@ export class HandMadePlugin extends plugin {
       ]
     });
 
-    this.apiKey = "610e4161c9f12c238bc0456069ad5d40";
+    this.apiKey = "";
     this.apiUrl = "https://jl.xiaoapi.cn/i/web/hand_made.php";
     this.tokenApiUrl = `https://jl.xiaoapi.cn/i/token/api.php?key=${this.apiKey}&type=get_info`;
   }
@@ -93,3 +93,4 @@ export class HandMadePlugin extends plugin {
     }
   }
 }
+
