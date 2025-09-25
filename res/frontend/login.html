@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>TRSS-YunKit 登录</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui/dist/css/mdui.min.css"/>
+</head>
+<body class="mdui-theme-layout-dark">
+
+<div class="mdui-container" style="margin-top:100px; max-width:400px;">
+  <div class="mdui-card mdui-shadow-6">
+    <div class="mdui-card-content">
+      <h3 class="mdui-text-center">TRSS-YunKit 登录</h3>
+      <div class="mdui-textfield mdui-textfield-floating-label">
+        <label class="mdui-textfield-label">Token</label>
+        <input class="mdui-textfield-input" type="text" id="tokenInput">
+      </div>
+      <button id="loginBtn" class="mdui-btn mdui-ripple mdui-color-theme-accent mdui-float-right">登录</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mdui/dist/js/mdui.min.js"></script>
+<script>
+const tokenInput = document.getElementById('tokenInput');
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const token = tokenInput.value.trim();
+  if (!token) return mdui.snackbar({ message: '请输入 token' });
+
+  try {
+    // 调用 /verify-token 接口验证 token
+    const res = await fetch('/verify-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    });
+
+    const data = await res.json();
+    if (!data.valid) {
+      return mdui.snackbar({ message: 'Token 无效或已过期' });
+    }
+
+    // 保存 token 到 localStorage
+    localStorage.setItem('TRSS_TOKEN', token);
+
+    // 跳转 index.html 并在 URL 上携带 token
+    window.location.href = `index.html?token=${encodeURIComponent(token)}`;
+
+  } catch (e) {
+    mdui.snackbar({ message: '验证失败: ' + e.message });
+  }
+});
+</script>
+
+</body>
+</html>

@@ -225,23 +225,35 @@ export class EpicFreeGamesScheduled extends plugin {
     }
   }
 
-  // 改造 formatGame，适配 PowerShell 命令逻辑
   formatGame(game, type = 'current') {
     let promo;
     if (type === 'current') promo = game.promotions?.promotionalOffers?.[0]?.promotionalOffers?.[0];
     else promo = game.promotions?.upcomingPromotionalOffers?.[0]?.promotionalOffers?.[0];
-
+  
     const images = (game.keyImages || []).map(img => img.url).filter(url => /^https?:\/\//.test(url));
-
+  
+    // 处理价格字段
+    let price = '未知';
+    const totalPrice = game.price?.totalPrice;
+    if (totalPrice) {
+      if (totalPrice.discountPrice === 0) {
+        price = '免费';
+      } else {
+        // 将分转换为元，保留两位小数
+        price = (totalPrice.discountPrice / 100).toFixed(2) + ' 元';
+      }
+    }
+  
     return {
       title: game.title || '未知游戏',
       description: game.description || '暂无描述',
       startDate: promo?.startDate || '',
       endDate: promo?.endDate || '',
-      link: this.getEpicLink(game),
+      link: this.getGameLink(game),
       images,
       cover: images[0] || '',
-      additionalImages: images.slice(1)
+      additionalImages: images.slice(1),
+      price
     };
   }
 

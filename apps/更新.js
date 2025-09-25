@@ -5,6 +5,7 @@ import { update } from '../../other/update.js';
 import puppeteer from 'puppeteer';
 import path from 'path';
 import { getAvatarInfo } from '../utils/avatar.js'; // 通用获取头像 Base64 + 主色
+import { segment } from 'oicq';
 
 export class CryoUpdatePlugin extends plugin {
   constructor() {
@@ -15,7 +16,7 @@ export class CryoUpdatePlugin extends plugin {
       priority: 666666,
       rule: [
         { reg: /^#?(yunkit|yk)(插件)?(强制)?更新?$/i, fnc: 'updatePlugin', permission: 'master' },
-        { reg: /^#?(yunkit|yk)(插件)?信息$/i, fnc: 'showInfo' }  // 合并版本 + 日志 + 提交信息
+        { reg: /^#?(yunkit|yk)(插件)?信息$/i, fnc: 'showInfo' }
       ]
     });
 
@@ -28,7 +29,7 @@ export class CryoUpdatePlugin extends plugin {
     this.Version = this.getVersionInfo();
   }
 
-  /** 更新插件 */
+  /** 更新插件（带自动重启） */
   async updatePlugin() {
     const updater = new update();
     updater.e = this.e;
@@ -37,38 +38,45 @@ export class CryoUpdatePlugin extends plugin {
     if (!updater.getPlugin(this.Plugin_Name)) return;
 
     try {
+      // 强制重置本地改动
       if (this.e.msg.includes('强制')) {
         execSync('git reset --hard', { cwd: this.Plugin_Path });
       }
 
-      execSync(`git branch --set-upstream-to=origin/main main`, { cwd: this.Plugin_Path, stdio: 'ignore' });
+      // 保证本地 main 分支跟远程同步
+      execSync(`git branch --set-upstream-to=origin/main main`, {
+        cwd: this.Plugin_Path,
+        stdio: 'ignore'
+      });
 
+      // 执行更新
       await updater.runUpdate(this.Plugin_Name);
 
+      // 如果有更新，延迟重启插件
       if (updater.isUp) {
-        setTimeout(() => updater.restart(), 2000);
+        logger.mark(`[CryoUpdatePlugin] ${this.Plugin_Name} 更新完成，准备重启插件...`);
+        setTimeout(() => updater.restart(), 2000); // 延迟 2 秒安全重启
+      } else {
+        await this.e.reply('插件已是最新版本');
       }
     } catch (err) {
-      logger.error('更新失败', err);
+      logger.error(`[CryoUpdatePlugin] 更新失败`, err);
+      await this.e.reply('插件更新失败，请查看日志');
     }
   }
 
-  /** 显示版本 + 日志 + 提交信息（图片） */
+  /** 显示版本 + CHANGELOG + Git提交信息（图片） */
   async showInfo() {
     try {
-      // 获取头像 Base64 + 主色
       const { avatarBase64, mainColor } = await getAvatarInfo(this.e);
-
       const title = this.Plugin_Name;
       const topLayout = Math.random() < 0.5 ? 'top-center' : 'top-left';
-      
-      // 渲染 HTML 模板
+
       const html = await this.renderHTML(avatarBase64, mainColor, title, topLayout);
 
-      // Puppeteer 渲染
       const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
       const page = await browser.newPage();
-      await page.setViewport({ width: 600, height: 900 }); // 固定 viewport 避免截图黑掉
+      await page.setViewport({ width: 600, height: 900 });
       await page.setContent(html, { waitUntil: 'networkidle0' });
       const buffer = await page.screenshot({ fullPage: true });
       await browser.close();
@@ -76,8 +84,8 @@ export class CryoUpdatePlugin extends plugin {
       const base64Img = 'base64://' + buffer.toString('base64');
       await this.e.reply(segment.image(base64Img));
     } catch (err) {
-      logger.error('渲染失败', err);
-      await this.e.reply('失败');
+      logger.error('[CryoUpdatePlugin] 渲染失败', err);
+      await this.e.reply('插件信息渲染失败');
     }
   }
 
@@ -87,7 +95,7 @@ export class CryoUpdatePlugin extends plugin {
     try {
       template = fs.readFileSync(this.TEMPLATE_PATH, 'utf8');
     } catch (err) {
-      logger.error('HTML 模板读取失败', err);
+      logger.error('[CryoUpdatePlugin] HTML 模板读取失败', err);
       template = `
         <html><body>
         <h1>{{title}}</h1>
@@ -95,18 +103,15 @@ export class CryoUpdatePlugin extends plugin {
         <p>当前版本: {{ver}}</p>
         <p>Yunzai 版本: {{yunzai}}</p>
         <p>Yunzai 名称: {{yunzainame}}</p>
-        <h3>CHANGELOG:</h3>
-        {{changelog}}
-        <h3>COMMITS:</h3>
-        {{gitlogs}}
+        <h3>CHANGELOG:</h3>{{changelog}}
+        <h3>COMMITS:</h3>{{gitlogs}}
         </body></html>
       `;
     }
 
-    // ✅ 修复：加上 yunzainame
     const { ver, yunzai, yunzainame, logs } = this.Version;
 
-    // 解析 CHANGELOG.md
+    // CHANGELOG
     let changelogHTML = '';
     if (logs && logs.length > 0) {
       logs.slice(0, 5).forEach(log => {
@@ -123,19 +128,17 @@ export class CryoUpdatePlugin extends plugin {
       changelogHTML = '<div class="log">暂时没有更新</div>';
     }
 
-    // 获取最新 10 条 Git 提交
+    // Git提交信息
     let gitLogs = [];
     try {
       const stdout = execSync('git log --pretty=format:"[%ad] %s" --date=short -n 10', { cwd: this.Plugin_Path });
       gitLogs = stdout.toString().split('\n');
     } catch (e) {
-      logger.error('获取 git 提交失败', e);
+      logger.error('[CryoUpdatePlugin] 获取 git 提交失败', e);
     }
     let gitLogsHTML = '';
     if (gitLogs.length > 0) {
-      gitLogs.forEach(l => {
-        gitLogsHTML += `<div class="git-log">· ${l}</div>`;
-      });
+      gitLogs.forEach(l => gitLogsHTML += `<div class="git-log">· ${l}</div>`);
     } else {
       gitLogsHTML = '<div class="git-log">没有提交</div>';
     }
@@ -165,7 +168,7 @@ export class CryoUpdatePlugin extends plugin {
     try {
       const packageJson = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'package.json'), 'utf8'));
       yunzai_ver = packageJson.version;
-      yunzai_name = packageJson.name; // ✅ 修复拼写
+      yunzai_name = packageJson.name;
     } catch {}
 
     const getLine = line => line.replace(/(^\s*[\*\-]|\r)/g, '').trim();
@@ -197,10 +200,10 @@ export class CryoUpdatePlugin extends plugin {
             }
           }
         });
-        if (temp.version) changelogs.push(temp); // 添加最后一条
+        if (temp.version) changelogs.push(temp);
       }
     } catch (e) {
-      logger.error('[YunKit版本] CHANGELOG 读取失败', e);
+      logger.error('[CryoUpdatePlugin] CHANGELOG 读取失败', e);
     }
 
     try {

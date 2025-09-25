@@ -118,38 +118,59 @@ export class EpicFreeGames extends plugin {
   }
 
   formatGame(game, type = 'current') {
-    let promo
+    let promo;
     if (type === 'current')
-      promo = game.promotions.promotionalOffers[0]?.promotionalOffers[0]
-    else promo = game.promotions.upcomingPromotionalOffers[0]?.promotionalOffers[0]
-
+      promo = game.promotions.promotionalOffers[0]?.promotionalOffers[0];
+    else
+      promo = game.promotions.upcomingPromotionalOffers[0]?.promotionalOffers[0];
+  
     const images = (game.keyImages || [])
       .map(img => img.url)
-      .filter(url => /^https?:\/\//.test(url))
-
+      .filter(url => /^https?:\/\//.test(url));
+  
+    // 原始分单位价格
+    const discountPrice = game.price?.totalPrice?.discountPrice ?? 0;
+    const originalPrice = game.price?.totalPrice?.originalPrice ?? 0;
+  
+    // 转换为元，保留两位小数，并处理免费
+    const price = discountPrice === 0 ? '免费' : (discountPrice / 100).toFixed(2) + ' 元';
+    const origPrice = originalPrice === 0 ? '免费' : (originalPrice / 100).toFixed(2) + ' 元';
+  
     return {
       title: game.title,
       description: game.description || '暂无描述',
       startDate: promo?.startDate || '',
       endDate: promo?.endDate || '',
-      link: this.getGameLink(game),
+      link: this.getEpicLink(game),
       images,
       cover: images[0] || '',
       additionalImages: images.slice(1),
       categories: (game.categories || []).map(c => c.path).join(', '),
-      tags: (game.tags || []).map(t => t.id).join(', '),
-      price: game.price?.totalPrice?.discountPrice ?? 0,
-      originalPrice: game.price?.totalPrice?.originalPrice ?? 0
-    }
+      tags: (game.tags || []).map(t => t.id).join(','),
+      price,          // 已转换为元或显示免费
+      originalPrice: origPrice // 已转换为元或显示免费
+    };
   }
+  
 
-  getGameLink(game) {
-    let slug = game.productSlug || game.urlSlug
-    if (slug?.includes('/')) {
-      return `https://store.epicgames.com/zh-CN/${slug}`
-    } else {
-      return `https://store.epicgames.com/zh-CN/p/${slug}`
+  getEpicLink(game) {
+    let slug = '';
+
+    if (game.offerMappings && game.offerMappings.length > 0 && game.offerMappings[0].pageSlug) {
+      slug = game.offerMappings[0].pageSlug;
     }
+
+    if (!slug && game.mappings && game.mappings.length > 0 && game.mappings[0].pageSlug) {
+      slug = game.mappings[0].pageSlug;
+    }
+
+    if (!slug && game.productSlug) {
+      slug = game.productSlug;
+    }
+
+    if (!slug) return ''; 
+
+    return `https://www.epicgames.com/store/zh-CN/p/${slug}`;
   }
 
   async renderHtmlToImage(html) {

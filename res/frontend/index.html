@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>TRSS-YunKit 实时日志</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui/dist/css/mdui.min.css"/>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body class="mdui-theme-layout-dark">
+
+<div id="container" class="mdui-container-fluid">
+
+  <!-- 左侧日志+操作区 -->
+  <div id="left">
+
+    <!-- 控制面板 -->
+    <div id="controls" class="mdui-m-b-2 mdui-typo" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px;">
+      <select class="mdui-select" id="levelFilter">
+        <option value="trace">TRACE</option>
+        <option value="debug">DEBUG</option>
+        <option selected value="info">INFO</option>
+        <option value="warn">WARN</option>
+        <option value="error">ERROR</option>
+        <option value="fatal">FATAL</option>
+        <option value="mark">MARK</option>
+      </select>
+
+      <select class="mdui-select" id="methodSelect">
+        <option value="message">message</option>
+        <option value="sendMsg">sendMsg</option>
+        <option value="sendFile">sendFile</option>
+        <option value="recallMsg">recallMsg</option>
+      </select>
+
+      <div class="mdui-file">
+        <input type="file" id="fileInput"/>
+        <label for="fileInput" class="mdui-btn mdui-btn-outlined">选择文件</label>
+      </div>
+
+      <button id="sendBtn" class="mdui-btn mdui-ripple mdui-color-theme-accent">发送</button>
+    </div>
+
+    <!-- 日志显示区域 -->
+    <div id="log" class="mdui-shadow-2"></div>
+
+    <!-- 命令输入框 -->
+    <input id="cmd" placeholder="输入命令回车发送" autofocus>
+
+  </div>
+
+</div>
+
+<!-- 弹窗 -->
+<div class="mdui-dialog" id="previewDialog">
+  <div class="mdui-dialog-title">日志详情</div>
+  <div class="mdui-dialog-content" id="previewContent"></div>
+  <div class="mdui-dialog-actions">
+    <button class="mdui-btn mdui-ripple" mdui-dialog-close>关闭</button>
+  </div>
+</div>
+
+<!-- 脚本 -->
+<script src="https://cdn.jsdelivr.net/npm/ansi_up@5/ansi_up.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdui/dist/js/mdui.min.js"></script>
+<script src="./main.js"></script>
+<script>
+  // 初始化 MDUI 下拉选择
+  new mdui.Select('#levelFilter');
+  new mdui.Select('#methodSelect');
+  const ansi_up = new AnsiUp();
+</script>
+</body>
+</html>
