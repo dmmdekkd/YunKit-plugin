@@ -12,3 +12,6 @@ git clone --depth=1 https://github.com/dmmdekkd/YunKit-plugin.git ./plugins/YunK
 ```bash
 git clone --depth=1 https://gitee.com/qianzhi11_admin/YunKit-plugin.git ./plugins/YunKit-plugin
 ```
+
+联系我
+haha1346@qq.com
