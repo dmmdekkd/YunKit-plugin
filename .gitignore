@@ -1,3 +1,4 @@
 node_modules/
 lastRun.json
-/plugins/YunKit-plugin/bak/stdin.js.bak.tmp
+bak/stdin.js.bak.tmp
+res/frontend/bot-*.log
