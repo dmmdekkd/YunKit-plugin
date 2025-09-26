@@ -335,15 +335,16 @@ wss.on('connection', (ws, req) => {
   }
 
   connections.add(ws);
-  ws._sentLogs = new Set();
+  ws._sentLogs = new Set();  // 用于追踪已发送的日志 ID
   
-
+  // 发送尚未发送过的日志
   logBuffer.forEach(({ id, level, timestamp, content }) => {
     if (!ws._sentLogs.has(id)) {
-      ws._sentLogs.add(id);
+      ws._sentLogs.add(id);  // 记录已发送的日志 ID
       ws.send(JSON.stringify({ type: 'logger', level, timestamp, content, id }));
     }
   });
+  //ws.send(JSON.stringify({ type: 'auth_success', content: `欢迎 ${username} 登录` }));
 
   ws.on('message', async msg => {
     let data;
