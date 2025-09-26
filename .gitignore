@@ -1,4 +1,4 @@
 node_modules/
 lastRun.json
-bak/stdin.js.bak.tmp
-res/frontend/bot-*.log
+/bak/stdin.js.bak.tmp
+/res/frontend/bot-*.log

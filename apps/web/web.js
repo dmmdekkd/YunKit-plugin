@@ -311,12 +311,13 @@ app.post('/verify-token', (req, res) => {
 // ---------------- 启动 HTTP+WS ----------------
 const rawLogger = global.logger?.info || console.info;
 
-const server = app.listen(HTTP_PORT, async () => {
+const server = app.listen(HTTP_PORT, '0.0.0.0', async () => {
   const ips = await getServerIPs();
   rawLogger('HTTP+WS 服务已启动');
   ips.local.forEach(ip => rawLogger(`  内网: http://${ip}:${HTTP_PORT}`));
   if (ips.public) rawLogger(`  公网: http://${ips.public}:${HTTP_PORT}`);
 });
+
 
 
 // ---------------- WebSocket ----------------

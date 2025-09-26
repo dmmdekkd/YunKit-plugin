@@ -54,10 +54,9 @@ export class CryoUpdatePlugin extends plugin {
 
       // 如果有更新，延迟重启插件
       if (updater.isUp) {
-        logger.mark(`[CryoUpdatePlugin] ${this.Plugin_Name} 更新完成，准备重启插件...`);
+        await this.e.reply(`${this.Plugin_Name} 更新完成，准备重启插件...`);
         setTimeout(() => updater.restart(), 2000); // 延迟 2 秒安全重启
       } else {
-        await this.e.reply('插件已是最新版本');
       }
     } catch (err) {
       logger.error(`[CryoUpdatePlugin] 更新失败`, err);

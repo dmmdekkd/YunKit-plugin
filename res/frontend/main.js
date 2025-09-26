@@ -112,6 +112,14 @@ function toSafeHtml(text){
   return htmlEscape(text);
 }
 
+function setVh() {
+  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+}
+
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', setVh);
+window.addEventListener('load', setVh);
+
 // ---------------- 渲染日志 ----------------
 function renderLogs(){
   if(!logDiv) return;
