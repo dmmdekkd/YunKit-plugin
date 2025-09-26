@@ -121,36 +121,40 @@ window.addEventListener('orientationchange', setVh);
 window.addEventListener('load', setVh);
 
 // ---------------- 渲染日志 ----------------
-function renderLogs(){
-  if(!logDiv) return;
-  logDiv.innerHTML = '';
+function renderLogs() {
+  if (!logDiv) return;
+
+  // 不清空 logDiv 内容，避免重复渲染
   const currentPriority = levelPriority[currentLevel] ?? 0;
 
-  logs.forEach(logItem=>{
+  // 创建一个临时 fragment，用来优化 DOM 操作
+  const fragment = document.createDocumentFragment();
+
+  logs.forEach(logItem => {
     const { level, timestamp, blocks, content } = logItem;
-    if(levelPriority[(level || 'info').toLowerCase()] < currentPriority) return;
+    if (levelPriority[(level || 'info').toLowerCase()] < currentPriority) return;
 
     const lineDiv = document.createElement('div');
     lineDiv.className = `log-line ${(level || 'info').toLowerCase()}`;
 
     const leftSpan = document.createElement('span');
     leftSpan.className = 'log-left ' + (level || 'info').toLowerCase();
-    if(timestamp) leftSpan.appendChild(createSpan(`[${timestamp}] `, 'timestamp'));
-    if(level) leftSpan.appendChild(createSpan(`[${(level||'').toUpperCase()}] `, 'level'));
+    if (timestamp) leftSpan.appendChild(createSpan(`[${timestamp}] `, 'timestamp'));
+    if (level) leftSpan.appendChild(createSpan(`[${(level || '') .toUpperCase()}] `, 'level'));
 
     const rightSpan = document.createElement('span');
     rightSpan.className = 'log-right ' + (level || 'info').toLowerCase();
 
-    if(blocks && Object.keys(blocks).length){
+    if (blocks && Object.keys(blocks).length) {
       Object.keys(blocks)
-        .sort((a,b)=>parseInt(a.replace('text','')) - parseInt(b.replace('text','')))
-        .forEach(key=>{
+        .sort((a, b) => parseInt(a.replace('text', '')) - parseInt(b.replace('text', '')))
+        .forEach(key => {
           const span = document.createElement('span');
           span.innerHTML = toSafeHtml(blocks[key].text || '');
           span.className = key;
           rightSpan.appendChild(span);
         });
-    } else if(content){
+    } else if (content) {
       const span = document.createElement('span');
       span.innerHTML = toSafeHtml(content);
       rightSpan.appendChild(span);
@@ -158,11 +162,18 @@ function renderLogs(){
 
     lineDiv.appendChild(leftSpan);
     lineDiv.appendChild(rightSpan);
-    logDiv.appendChild(lineDiv);
+
+    // 将日志行添加到 fragment
+    fragment.appendChild(lineDiv);
   });
 
+  // 将 fragment 一次性插入 logDiv，优化性能
+  logDiv.appendChild(fragment);
+
+  // 保持滚动到日志底部
   logDiv.scrollTop = logDiv.scrollHeight;
 }
+
 
 // ---------------- WebSocket ----------------
 let ws;
