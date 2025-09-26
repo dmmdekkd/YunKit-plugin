@@ -146,17 +146,23 @@ html, body {
   padding: 2px 6px;
   word-break: break-word;
 }
-.log-right.trace  { color: #9e9e9e; }
-.log-right.debug  { color: #00bcd4; }
-.log-right.info   { color: #8bc34a; }
-.log-right.warn   { color: #ffeb3b; }
-.log-right.error  { color: #f44336; }
-.log-right.fatal  { color: #e91e63; }
-.log-right.mark   { color: #ff9800; }
-.log-right .keyword { color: #ff5722; font-weight: bold; }
-.log-right .url     { color: #03a9f4; text-decoration: underline; cursor: pointer; }
-.log-right a { color: #00bcd4; text-decoration: underline; cursor: pointer; }
-.log-right .long-text { color: #ffeb3b; cursor: pointer; }
+/* 日志级别颜色 */
+.log-right.trace  { color: #B0BEC5; } /* 浅灰色 */
+.log-right.debug  { color: #4FC3F7; } /* 浅蓝色 */
+.log-right.info   { color: #81C784; } /* 浅绿色 */
+.log-right.warn   { color: #FFEB3B; } /* 明亮的黄色 */
+.log-right.error  { color: #EF5350; } /* 红色 */
+.log-right.fatal  { color: #D32F2F; } /* 深红色 */
+.log-right.mark   { color: #FF9800; } /* 橙色 */
+
+/* 关键字高亮 */
+.log-right .keyword { color: #FF4081; font-weight: bold; } /* 粉红色 */
+.log-right .url     { color: #29B6F6; text-decoration: underline; cursor: pointer; } /* 蓝色，带下划线 */
+.log-right a { color: #00B8D4; text-decoration: underline; cursor: pointer; } /* 青色，带下划线 */
+
+/* 长文本提示 */
+.log-right .long-text { color: #FFEB3B; cursor: pointer; } /* 黄色 */
+
 
 /* ---------------- 下拉 & 文件选择 ---------------- */
 #controls select,
@@ -210,74 +216,6 @@ html, body {
 .mdui-dialog-content details { background: #1b1b1b; border-radius: 4px; padding: 6px; margin: 4px 0; }
 .mdui-dialog-content summary { cursor: pointer; color: #ffeb3b; font-weight: bold; outline: none; }
 
-/* ---------------- 手机端适配 ---------------- */
-@media screen and (max-width: 768px) {
-  #container {
-    flex-direction: column;
-    height: 100vh;
-    gap: 4px;
-    padding: 4px;
-  }
-
-  #left, #right {
-    width: 100%;
-    flex: 1 1 auto;
-    max-height: none; /* 手机端自动撑满 */
-    min-height: 50px;
-    overflow-y: auto;
-  }
-
-  #log {
-    min-height: 100px;
-    padding-top: 4px; /* 避免日志紧贴顶部 */
-    padding-bottom: 4px; /* 避免日志紧贴底部 */
-  }
-
-  #controls, .command-container {
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-
-  #controls select,
-  #controls button,
-  #cmdSendBtn,
-  .mdui-file {
-    flex: 0 1 auto;    /* 不占满整行，可缩放 */
-    min-width: 0;      /* 避免溢出 */
-    font-size: 13px;
-    padding: 3px 6px;
-    min-height: 32px;
-  
-  
-  /* 手机端文件选择换行，占满整行 */
-  .mdui-file {
-    flex: 1 0 100%;          /* 占满整行 */
-    margin-top: 4px;         /* 上方间距 */
-  }
-
-  #cmd {
-    width: 100%;
-    font-size: 13px;
-    padding: 6px;
-  }
-
-  .mdui-dialog {
-    width: 95% !important;
-    max-width: 95% !important;
-  }
-
-  .log-left { font-size: 11px; padding: 1px 4px; }
-  .log-right { font-size: 11px; }
-
-  .mdui-dialog-content {
-    max-height: 70vh;
-    overflow-y: auto;
-    font-size: 12px;
-    padding: 8px;
-  }
-}
-
-
 /* ---------------- 高亮色 ---------------- */
 .log-right.color-0 { color: #ff6b6b !important; }
 .log-right.color-1 { color: #feca57 !important; }
@@ -287,4 +225,5 @@ html, body {
 .log-right.color-5 { color: #ff9ff3 !important; }
 
 .log-right.color-6 { color: #ff9f43 !important; }
-.log-right.color-7 { color: #ff6b6b !important; }}
+.log-right.color-7 { color: #ff6b6b !important; }
+

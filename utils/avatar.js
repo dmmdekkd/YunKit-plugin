@@ -16,7 +16,7 @@ export async function getAvatarInfo(e, defaultColor = '#ffdd57') {
 
   // 2. 获取头像 URL
   const avatarUrl = isQQbot
-    ? `https://thirdqq.qlogo.cn/qqapp/102080069/${openid}/640`
+    ? `https://thirdqq.qlogo.cn/qqapp/102808311/${openid}/640`
     : `http://q1.qlogo.cn/g?b=qq&nk=${e.user_id}&s=640`;
 
   // 3. 下载头像到临时文件

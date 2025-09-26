@@ -1,5 +1,6 @@
 node_modules/
-lastRun.json
 /bak/stdin.js.bak.tmp
 /res/frontend/bot-*.log
 /res/frontend/tokens.json
+pnpm-lock.yaml
+/data/*.jpg

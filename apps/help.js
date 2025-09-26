@@ -81,7 +81,7 @@ export class helpyunzai extends plugin {
       const isQQbot = e.bot?.version?.name === 'QQBot'
       const openid = e.raw?.author?.user_openid || e.raw?.sender?.user_openid || e.user_id
       const avatarUrl = isQQbot
-        ? `https://thirdqq.qlogo.cn/qqapp/102080069/${openid}/640`
+        ? `https://thirdqq.qlogo.cn/qqapp/102808311/${openid}/640`
         : `http://q1.qlogo.cn/g?b=qq&nk=${e.user_id}&s=640`
 
       const avatarPath = await this.downloadAvatar(avatarUrl)

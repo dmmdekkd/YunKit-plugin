@@ -336,7 +336,7 @@ wss.on('connection', (ws, req) => {
 
   connections.add(ws);
   ws._sentLogs = new Set();
-  appendLog('info', `[WS 已连接] 用户:${username}`);
+  
 
   logBuffer.forEach(({ id, level, timestamp, content }) => {
     if (!ws._sentLogs.has(id)) {
@@ -367,8 +367,8 @@ wss.on('connection', (ws, req) => {
     }
   });
 
-  ws.on('close', () => { connections.delete(ws); appendLog('info', `[WS 已关闭] 用户:${username}`); });
-  ws.on('error', () => { connections.delete(ws); appendLog('warn', `[WS 错误] 用户:${username}`); });
+  ws.on('close', () => { connections.delete(ws);  });
+  ws.on('error', () => { connections.delete(ws);  });
 });
 
 // 启动时清理一次
@@ -445,19 +445,30 @@ export class LoginLinkPlugin extends plugin {
       const publicIP = await this.getPublicIP();
 
       // 构建 URL 列表
-      const urls = [];
-      localIPs.forEach(ip => urls.push(`http://${ip}:${HTTP_PORT}/?token=${token}`));
-      if (publicIP) urls.push(`http://${publicIP}:${HTTP_PORT}/?token=${token}`);
+const urls = [];
+localIPs.forEach(ip => {
+  urls.push({
+    url: `http://${ip}:${HTTP_PORT}/?token=${token}`,
+    label: '内网'
+  });
+});
+if (publicIP) {
+  urls.push({
+    url: `http://${publicIP}:${HTTP_PORT}/?token=${token}`,
+    label: '公网'
+  });
+}
 
-      // 构建提示信息
-      let msg = `登录链接已生成，剩余有效时间：${remainingMinutes} 分钟\n`;
-      msg += `token: ${token}\n`;
-      msg += `可访问链接：\n`;
-      urls.forEach(u => msg += `  ${u}\n`);
+// 构建提示信息
+let msg = `登录链接已生成，剩余有效时间：${remainingMinutes} 分钟\n`;
+msg += `token: ${token}\n`;
+msg += `可访问链接：\n`;
 
-      await e.reply(msg);
-    } catch (err) {
-      await e.reply(`生成登录链接失败: ${err.message}`);
+urls.forEach(u => msg += `  ${u.label}: ${u.url}\n`);
+
+await e.reply(msg);
+    } catch (e) {
+      await e.reply(`登录链接生成失败，错误信息：${e}`);
     }
   }
 }

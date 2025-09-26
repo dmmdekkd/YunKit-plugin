@@ -1,0 +1,68 @@
+/* 设置整体背景颜色 */
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  /* 登录框容器样式 */
+  .login-container {
+    margin-top: 50px;
+    display: flex;
+    justify-content: flex-end;  /* 将内容靠右对齐 */
+    align-items: center;
+    height: 100vh;
+    padding-right: 20px;  /* 增加右侧内边距，避免内容贴边 */
+  }
+  
+  /* 登录卡片的样式 */
+  .mdui-card {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 8px;
+    background-color: #1e1e1e;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* 标题居中对齐 */
+  .mdui-text-center {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  /* 输入框样式 */
+  .mdui-textfield-input {
+    background-color: #333;
+    color: #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+    width: 100%;
+  }
+  
+  /* 输入框浮动标签样式 */
+  .mdui-textfield-label {
+    color: #bbb;
+  }
+  
+  /* 登录按钮样式 */
+  #loginBtn {
+    background-color: #1976d2;
+    border-radius: 4px;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  #loginBtn:hover {
+    background-color: #1565c0;
+  }
+  
+  /* 提示信息样式 */
+  .mdui-snackbar {
+    background-color: #e64a19;
+    color: white;
+    font-size: 14px;
+    border-radius: 4px;
+  }
+  

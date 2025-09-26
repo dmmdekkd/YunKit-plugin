@@ -37,7 +37,7 @@ export class HandMadePlugin extends plugin {
       const isQQbot = e.bot?.version?.name === "QQBot";
       const openid = e.raw?.author?.user_openid || e.raw?.sender?.user_openid || e.user_id;
       imgUrl = isQQbot
-        ? `https://thirdqq.qlogo.cn/qqapp/102080069/${openid}/640`
+        ? `https://thirdqq.qlogo.cn/qqapp/102808311/${openid}/640`
         : `https://q.qlogo.cn/g?b=qq&nk=${e.user_id}&s=640`;
     }
 
