@@ -286,12 +286,5 @@ html, body {
 .log-right.color-4 { color: #5f27cd !important; }
 .log-right.color-5 { color: #ff9ff3 !important; }
 
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
-#container {
-  height: calc(var(--vh, 1vh) * 100); /* 使用动态计算高度 */
-}
-
+.log-right.color-6 { color: #ff9f43 !important; }
+.log-right.color-7 { color: #ff6b6b !important; }}
