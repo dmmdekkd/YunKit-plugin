@@ -383,8 +383,7 @@ export class LoginLinkPlugin extends plugin {
       dsc: '生成 TRSS-YunKit Web 前端登录链接（支持内外网和单独 token）',
       event: 'message',
       priority: -9999999,
-      rule: [{ reg: "^(#|/)?登录链接$", fnc: "handMade" }],
-      permission: "master" 
+      rule: [{ reg: "^(#|/)?登录链接$", fnc: "handMade", permission: "master" }] 
     });
   }
 
