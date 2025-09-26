@@ -121,18 +121,68 @@ window.addEventListener('orientationchange', setVh);
 window.addEventListener('load', setVh);
 
 // ---------------- 渲染日志 ----------------
+// ---------------- 添加日志 ----------------
+function appendLog(logItem) {
+  if (!logItem) return;
+
+  // 获取日志的唯一标识符 id
+  const logId = logItem.id;
+
+  // 如果日志 ID 已经存在于 seenIds 中，则不重复添加
+  if (logId && seenIds.has(logId)) return;
+
+  // 将 ID 添加到 seenIds 集合中
+  if (logId) seenIds.add(logId);
+
+  let rawContent = logItem.content || logItem.raw || buildContentFromBlocks(logItem.blocks || {});
+  if (!rawContent) return;
+
+  const cleanContent = stripAnsi(rawContent);
+  if (!cleanContent) return;
+
+  const level = (logItem.level || 'info').toLowerCase();
+  const timestamp = logItem.timestamp || (new Date()).toISOString();
+
+  const blocks = {};
+  if (logItem.blocks && typeof logItem.blocks === 'object') {
+    const keys = Object.keys(logItem.blocks).sort((a, b) => parseInt(a.replace('text', '')) - parseInt(b.replace('text', '')));
+    keys.forEach((k, i) => {
+      const value = logItem.blocks[k];
+      blocks['text' + (i + 1)] = { text: (typeof value === 'string' ? value : (value.text || '')), color: (value && value.color) ? value.color : '' };
+    });
+  } else {
+    let idx = 1;
+    cleanContent.split(/\s+/).forEach(text => {
+      if (text.trim()) blocks['text' + idx] = { text }; idx++;
+    });
+  }
+
+  logs.push({ id: logItem.id, level, timestamp, content: cleanContent, blocks });
+
+  // 超过最大日志数量时删除旧日志
+  if (logs.length > MAX_LOG_LINES) {
+    const removed = logs.splice(0, logs.length - MAX_LOG_LINES);
+    removed.forEach(v => v.id && seenIds.delete(v.id));
+  }
+
+  renderLogs();
+}
+
+// ---------------- 渲染日志 ----------------
 function renderLogs() {
   if (!logDiv) return;
 
-  // 不清空 logDiv 内容，避免重复渲染
   const currentPriority = levelPriority[currentLevel] ?? 0;
-
-  // 创建一个临时 fragment，用来优化 DOM 操作
   const fragment = document.createDocumentFragment();
 
-  logs.forEach(logItem => {
+  // 将日志分批渲染
+  const batchSize = 20; // 每次渲染 20 条日志
+  const startIdx = Math.max(logs.length - batchSize, 0);
+
+  for (let i = startIdx; i < logs.length; i++) {
+    const logItem = logs[i];
     const { level, timestamp, blocks, content } = logItem;
-    if (levelPriority[(level || 'info').toLowerCase()] < currentPriority) return;
+    if (levelPriority[(level || 'info').toLowerCase()] < currentPriority) continue;
 
     const lineDiv = document.createElement('div');
     lineDiv.className = `log-line ${(level || 'info').toLowerCase()}`;
@@ -162,17 +212,14 @@ function renderLogs() {
 
     lineDiv.appendChild(leftSpan);
     lineDiv.appendChild(rightSpan);
-
-    // 将日志行添加到 fragment
     fragment.appendChild(lineDiv);
-  });
+  }
 
-  // 将 fragment 一次性插入 logDiv，优化性能
   logDiv.appendChild(fragment);
-
-  // 保持滚动到日志底部
-  logDiv.scrollTop = logDiv.scrollHeight;
+  logDiv.scrollTop = logDiv.scrollHeight; // 保持滚动到最底部
 }
+
+
 
 
 // ---------------- WebSocket ----------------
