@@ -1,22 +1,24 @@
 /* ---------------- 全局深色模式 ---------------- */
-body, html {
+html, body {
   height: 100%;
   margin: 0;
   font-family: "Roboto Mono", monospace;
   background: #121212;
   color: #e0e0e0;
+  overflow: hidden;
 }
 
 /* ---------------- 主容器布局 ---------------- */
 #container {
   display: flex;
+  flex-direction: row;
   height: 100vh;
   gap: 8px;
   padding: 8px;
   box-sizing: border-box;
 }
 
-/* 左侧日志 + 控制区 */
+/* ---------------- 左侧日志 + 控制区 ---------------- */
 #left {
   flex: 1.5;
   display: flex;
@@ -25,12 +27,32 @@ body, html {
   gap: 8px;
 }
 
-/* 操作区域 */
+/* 控制面板 */
 #controls {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 8px;
   align-items: center;
+}
+
+/* 顶部控制按钮 */
+#topSendBtn {
+  padding: 3px 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  min-height: 36px;
+  background: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.2s;
+}
+#topSendBtn:hover {
+  background: #1976d2;
 }
 
 /* 日志面板 */
@@ -43,6 +65,7 @@ body, html {
   padding: 12px;
   border: 1px solid #333;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  font-size: 13px;
 }
 
 /* ---------------- 左侧灰色区 ---------------- */
@@ -55,24 +78,22 @@ body, html {
   flex: none;
   white-space: nowrap;
   border-radius: 4px;
+  font-size: 12px;
 }
 
-/* 左侧各字段颜色 */
 .log-left .timestamp { color: #888888; }          
-.log-left .level { color: #00bcd4; font-weight: bold; }
+.log-left .level { font-weight: bold; }
+.log-left.info  .level  { color: #4CAF50; }
+.log-left.warn  .level  { color: #FF9800; }
+.log-left.error .level  { color: #F44336; }
+.log-left.debug .level  { color: #2196F3; }
+.log-left.fatal .level  { color: #E91E63; }
+.log-left.mark  .level  { color: #757575; }
 .log-left .source { color: #4dd0e1; }
 .log-left .module { color: #ffb74d; }
 .log-left .count  { color: #aed581; }
 .log-left .size   { color: #ff8a65; }
 .log-left .time   { color: #e57373; }
-
-/* 日志等级颜色优化 */
-.log-left.info .level  { color: #4CAF50; }
-.log-left.warn .level  { color: #FF9800; }
-.log-left.error .level { color: #F44336; }
-.log-left.debug .level { color: #2196F3; }
-.log-left.fatal .level { color: #E91E63; }
-.log-left.mark .level  { color: #757575; }
 
 /* ---------------- 右侧消息区 ---------------- */
 .log-right { 
@@ -88,20 +109,22 @@ body, html {
 .log-right.fatal  { color: #e91e63; }
 .log-right.mark   { color: #ff9800; }
 
-
-/* 关键字高亮 */
+/* 关键字高亮 & 链接 */
 .log-right .keyword { color: #ff5722; font-weight: bold; }
-.log-right .url     { color: #03a9f4; text-decoration: underline; }
-
-/* 图片链接样式 */
+.log-right .url     { color: #03a9f4; text-decoration: underline; cursor: pointer; }
 .log-right a { color: #00bcd4; text-decoration: underline; cursor: pointer; }
-
-/* 长文本折叠提示 */
 .log-right .long-text { color: #ffeb3b; cursor: pointer; }
 
-/* ---------------- 命令输入框 ---------------- */
+/* ---------------- 命令输入区 ---------------- */
+.command-container {
+  display: flex;
+  align-items: center; /* 垂直居中 */
+  gap: 8px;            /* 输入框与按钮间距 */
+  margin-top: 8px;
+}
+
 #cmd {
-  flex: none;
+  flex: 1;             /* 占满剩余空间 */
   padding: 8px;
   background: #1b1b1b;
   color: #0f0;
@@ -109,19 +132,33 @@ body, html {
   border-radius: 4px;
   outline: none;
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
-  width: 100%;
   box-sizing: border-box;
-  margin-top: 4px;
 }
 
-/* ---------------- 按钮、下拉、文件选择统一样式 ---------------- */
-#sendBtn,
-.mdui-file label,
-#controls select {
-  padding: 3px 8px;       /* 紧凑内边距 */
-  font-size: 14px;        /* 统一字体大小 */
-  line-height: 1.4;       /* 行高统一 */
-  min-height: 36px;       /* 高度统一 */
+#cmdSendBtn {
+  flex: none;           /* 固定宽度 */
+  padding: 6px 14px;
+  background: #2196f3;  /* 蓝色按钮 */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+#cmdSendBtn:hover {
+  background: #1976d2;
+}
+
+/* ---------------- 下拉 & 文件选择 ---------------- */
+.mdui-file { display: inline-block; position: relative; }
+.mdui-file input[type=file] { display: none; }
+
+#controls select,
+.mdui-file label {
+  padding: 3px 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  min-height: 36px;
   background: #2196f3;
   color: #fff;
   border: none;
@@ -130,23 +167,10 @@ body, html {
   display: flex;
   justify-content: center;
   align-items: center;
-  box-sizing: border-box;
-  vertical-align: middle;
   transition: 0.2s;
 }
-
-#sendBtn:hover,
-.mdui-file label:hover,
-#controls select:hover {
-  background: #1976d2;
-}
-
-/* ---------------- 上传文件 MDUI 风格 ---------------- */
-.mdui-file {
-  display: inline-block;
-  position: relative;
-}
-.mdui-file input[type=file] { display: none; }
+#controls select:hover,
+.mdui-file label:hover { background: #1976d2; }
 
 /* ---------------- 弹窗内容优化 ---------------- */
 .mdui-dialog-content {
@@ -160,93 +184,31 @@ body, html {
   font-family: "Roboto Mono", monospace;
   padding: 12px;
 }
-.mdui-dialog-content img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 8px 0;
-}
-.mdui-dialog-content details {
-  background: #1b1b1b;
-  border-radius: 4px;
-  padding: 6px;
-  margin: 4px 0;
-}
-.mdui-dialog-content summary {
-  cursor: pointer;
-  color: #ffeb3b;
-  font-weight: bold;
-  outline: none;
-}
+.mdui-dialog-content img { max-width: 100%; height: auto; display: block; margin: 8px 0; }
+.mdui-dialog-content details { background: #1b1b1b; border-radius: 4px; padding: 6px; margin: 4px 0; }
+.mdui-dialog-content summary { cursor: pointer; color: #ffeb3b; font-weight: bold; outline: none; }
 
 /* ---------------- 手机端适配 ---------------- */
 @media screen and (max-width: 768px) {
-#container {
-  flex-direction: column;
-  height: 100vh;
-  gap: 4px;
-  padding: 4px;
+  #container { flex-direction: column; height: 100vh; gap: 4px; padding: 4px; }
+  #left { width: 100%; flex: 1; display: flex; flex-direction: column; height: 100%; }
+  #controls { flex-wrap: nowrap; gap: 4px; display: flex; align-items: center; }
+  #controls select, #controls .mdui-file, #controls button {
+    flex: 0 0 auto; min-width: 0; margin: 0; font-size: 13px; padding: 3px 6px; min-height: 32px;
+  }
+  #log { flex: 1; max-height: calc(100vh - 140px); font-size: 12px; padding: 6px; }
+  #cmd { width: 100%; font-size: 13px; padding: 6px; }
+  #cmdSendBtn { padding: 6px 12px; font-size: 13px; }
+  .mdui-dialog { width: 95% !important; max-width: 95% !important; }
+  .log-left { font-size: 11px; padding: 1px 4px; }
+  .log-right { font-size: 11px; }
 }
 
-#left {
-  width: 100%;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-#controls {
-  flex-wrap: nowrap;
-  gap: 4px;
-  display: flex;
-  align-items: center;
-}
-
-#controls select,
-#controls .mdui-file,
-#controls button {
-  flex: 0 0 auto;
-  min-width: 0;
-  margin: 0;
-  font-size: 14px;
-  padding: 3px 8px;
-  line-height: 1.4;
-  min-height: 36px;
-}
-
-#log {
-  flex: 1;
-  max-height: calc(100vh - 140px);
-  font-size: 12px;
-  overflow-y: auto;
-  padding: 8px;
-}
-
-#cmd {
-  width: 100%;
-  font-size: 14px;
-  padding: 6px;
-}
-
-.mdui-dialog {
-  width: 95% !important;
-  max-width: 95% !important;
-}
-
-.mdui-dialog-content img {
-  max-width: 100%;
-  height: auto;
-}
-
-.log-left { font-size: 12px; padding: 1px 4px; }
-.log-right { font-size: 12px; }
-}
+/* ---------------- 高亮色 ---------------- */
 .log-right.color-0 { color: #ff6b6b !important; }
 .log-right.color-1 { color: #feca57 !important; }
 .log-right.color-2 { color: #1dd1a1 !important; }
 .log-right.color-3 { color: #54a0ff !important; }
 .log-right.color-4 { color: #5f27cd !important; }
 .log-right.color-5 { color: #ff9ff3 !important; }
-
 

@@ -2,6 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>TRSS-YunKit 实时日志</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui/dist/css/mdui.min.css"/>
 <link rel="stylesheet" href="./style.css">
@@ -14,7 +15,7 @@
   <div id="left">
 
     <!-- 控制面板 -->
-    <div id="controls" class="mdui-m-b-2 mdui-typo" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px;">
+    <div id="controls" class="mdui-m-b-2 mdui-typo">
       <select class="mdui-select" id="levelFilter">
         <option value="trace">TRACE</option>
         <option value="debug">DEBUG</option>
@@ -37,27 +38,34 @@
         <label for="fileInput" class="mdui-btn mdui-btn-outlined">选择文件</label>
       </div>
 
-      <button id="sendBtn" class="mdui-btn mdui-ripple mdui-color-theme-accent">发送</button>
+      <!-- 顶部控制面板发送按钮 -->
+      <button id="topSendBtn" class="mdui-btn mdui-ripple mdui">发送</button>
     </div>
 
     <!-- 日志显示区域 -->
     <div id="log" class="mdui-shadow-2"></div>
 
-    <!-- 命令输入框 -->
-    <input id="cmd" placeholder="输入命令回车发送" autofocus>
+    <!-- 命令输入区 -->
+    <div class="command-container">
+      <input id="cmd" placeholder="输入命令回车发送" autofocus>
+      <button id="cmdSendBtn">发送</button>
+    </div>
+    
 
   </div>
 
 </div>
 
-<!-- 弹窗 -->
-<div class="mdui-dialog" id="previewDialog">
-  <div class="mdui-dialog-title">日志详情</div>
-  <div class="mdui-dialog-content" id="previewContent"></div>
-  <div class="mdui-dialog-actions">
-    <button class="mdui-btn mdui-ripple" mdui-dialog-close>关闭</button>
+<div id="logPreviewModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">日志预览</span>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div class="modal-body"></div>
   </div>
 </div>
+
 
 <!-- 脚本 -->
 <script src="https://cdn.jsdelivr.net/npm/ansi_up@5/ansi_up.min.js"></script>
